@@ -1,0 +1,43 @@
+---
+title: "Data Exploration Project"
+author: "Al"
+date: "3/19/2022"
+output: html_document
+---
+## Preamble
+For the purpose of this project, I'll be taking a look at The College Scorecard 
+(a public-facing website that contains important information about colleges, 
+including how much its graduates earn) and seeing how it effects — if at all —
+Google Trend results relating to that data.
+
+Most importantly, we want to see if there is a noticeable uptick when the The
+College Scoreboard is added in September of 2015.
+
+# Data & Libraries
+Bringing in our libraries and squeaky clean data
+```{r}
+library(tidyverse)
+library(car)
+library(vtable)
+library(jtools)
+
+clean_data <- read_csv('../processed_data/clean_data.csv')
+```
+
+##  Analysis
+Because we're going to be conducting a difference-in-difference regression, we're going to set up both a treated and an untreated group. Our goal here is to understand the effects of Google Trend indexes on our "treated" variables (which account for our defined median earnings before and after the scorecard launch)
+```{r}
+did_reg <- lm(index_std ~ untreated * treated, data = clean_data)
+export_summs(did_reg)
+```
+
+## Visualization
+For our visualization, we'll be graphing our treated (and untreated) values and seeing how they differ in their values based on our difference-in-difference model. Recall that time is being used to dictate "before" and "after". We're using the launch of The College Scorecard as that defining point in time.
+
+There does appear to be a small, but measurable, difference when concluding before (FALSE) and after [FALSE] treatment. This tells us that there was a shift following the release of The College Scorecard, but given that we're seeing a result opposite from what we expected, it's possible that another variable played more into effect. Perhaps less presigious schools invested more heavily into marketing efforts to better highlight their strengths — it's hard to know.
+```{r}
+effect_plot(did_reg, pred = treated)
+```
+
+## Conclusion
+To conclude, it appears that the effect created by The College Board isn't all that profound when it comes to Google Trends. I actually received results that went against the narrative I personally expected, and so I would conclude that its effects are negligent.
